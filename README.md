@@ -1,5 +1,4 @@
-Siguiendo el curso de "Unit Testing for Typescript & NodeJs Developers with Jest
-" de Alex Dan.
+Siguiendo el curso de "Unit Testing for Typescript & NodeJs Developers with Jest" de Alex Dan.
 
 https://www.udemy.com/course/unit-testing-typescript-nodejs/
 

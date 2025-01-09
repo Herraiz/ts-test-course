@@ -94,7 +94,7 @@ describe("OtherUtils test suite", () => {
   });
 
   // Now testing using Jest spies
-  describe.only("OtherStringUtils tests with spies", () => {
+  describe("OtherStringUtils tests with spies", () => {
     let sut: OtherStringUtils;
 
     beforeEach(() => {

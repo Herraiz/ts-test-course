@@ -1,5 +1,6 @@
 import {
   calculateComplexity,
+  OtherStringUtils,
   toUpperCaseWithCb,
 } from "../../app/doubles/OtherUtils";
 
@@ -66,8 +67,8 @@ describe("OtherUtils test suite", () => {
   });
 
   // Now testing using Jest Mocks
-  describe.only("Tracking callbacks with Jest mocks", () => {
-    const callBackMock = jest.fn();
+  describe("Tracking callbacks with Jest mocks", () => {
+    const callBackMock = jest.fn(); // accepts an implementation
 
     // reset mock calls
     afterEach(() => {
@@ -89,6 +90,40 @@ describe("OtherUtils test suite", () => {
       expect(actual).toBe("ABC");
       expect(callBackMock).toHaveBeenCalledWith("called function with abc");
       expect(callBackMock).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  // Now testing using Jest spies
+  describe.only("OtherStringUtils tests with spies", () => {
+    let sut: OtherStringUtils;
+
+    beforeEach(() => {
+      sut = new OtherStringUtils();
+    });
+
+    test("Use a spy to track calls", () => {
+      const toUpperCaseSpy = jest.spyOn(sut, "toUpperCase");
+      sut.toUpperCase("asa");
+      expect(toUpperCaseSpy).toHaveBeenCalledWith("asa");
+    });
+
+    test("Use a spy to track calls to other modules", () => {
+      const consoleLogSpy = jest.spyOn(console, "log");
+      sut.logString("abc");
+      expect(consoleLogSpy).toHaveBeenCalledWith("abc");
+    });
+
+    test("Use a spy toreplace implementation of a method", () => {
+      const callExternalServiceSpy = jest
+        .spyOn(
+          sut as any, // now we can call private methods
+          "callExternalService"
+        )
+        .mockImplementation(() => {
+          console.log("Mocked callExternalService"); // we can replace the implementation
+        });
+      (sut as any).callExternalService();
+      expect(callExternalServiceSpy).toHaveBeenCalled();
     });
   });
 });

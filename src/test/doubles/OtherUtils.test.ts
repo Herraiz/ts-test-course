@@ -33,7 +33,7 @@ describe("OtherUtils test suite", () => {
   });
 
   // now we are using a mock to check if the callback is called
-  describe.only("Tracking callbacks", () => {
+  describe("Tracking callbacks", () => {
     let cbArgs = [];
     let timesCalled = 0;
 
@@ -62,6 +62,33 @@ describe("OtherUtils test suite", () => {
       expect(actual).toBe("ABC");
       expect(cbArgs).toContain("called function with abc");
       expect(timesCalled).toBe(1);
+    });
+  });
+
+  // Now testing using Jest Mocks
+  describe.only("Tracking callbacks with Jest mocks", () => {
+    const callBackMock = jest.fn();
+
+    // reset mock calls
+    afterEach(() => {
+      //   callBackMock.mockClear();
+      jest.clearAllMocks();
+    });
+
+    test("Calls callback for invalid argument - track calls", () => {
+      const actual = toUpperCaseWithCb("", callBackMock);
+
+      expect(actual).toBeUndefined();
+      expect(callBackMock).toHaveBeenCalledWith("No argument provided");
+      expect(callBackMock).toHaveBeenCalledTimes(1);
+    });
+
+    test("Calls callback for valid argument - track calls", () => {
+      const actual = toUpperCaseWithCb("abc", callBackMock);
+
+      expect(actual).toBe("ABC");
+      expect(callBackMock).toHaveBeenCalledWith("called function with abc");
+      expect(callBackMock).toHaveBeenCalledTimes(1);
     });
   });
 });

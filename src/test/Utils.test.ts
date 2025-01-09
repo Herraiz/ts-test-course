@@ -8,10 +8,15 @@ describe("Utils test suite", () => {
       //   console.log("Setup");
     });
 
+    it.todo("test long strings");
+    // can use aswell concurrent and skip
+
     afterEach(() => {
       // Clearing mocks
       //   console.log("Teardown");
     });
+
+    // it is an alias for test
 
     test("Should return correct upperCase", () => {
       const actual = sut.toUpperCase("abc");

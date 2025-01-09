@@ -31,4 +31,37 @@ describe("OtherUtils test suite", () => {
 
     expect(actual).toBe("ABC");
   });
+
+  // now we are using a mock to check if the callback is called
+  describe.only("Tracking callbacks", () => {
+    let cbArgs = [];
+    let timesCalled = 0;
+
+    function callBackMock(arg: string) {
+      cbArgs.push(arg);
+      timesCalled++;
+    }
+
+    // clear tracking fields
+    afterEach(() => {
+      cbArgs = [];
+      timesCalled = 0;
+    });
+
+    test("Calls callback for invalid argument - track calls", () => {
+      const actual = toUpperCaseWithCb("", callBackMock);
+
+      expect(actual).toBeUndefined();
+      expect(cbArgs).toContain("No argument provided");
+      expect(timesCalled).toBe(1);
+    });
+
+    test("Calls callback for valid argument - track calls", () => {
+      const actual = toUpperCaseWithCb("abc", callBackMock);
+
+      expect(actual).toBe("ABC");
+      expect(cbArgs).toContain("called function with abc");
+      expect(timesCalled).toBe(1);
+    });
+  });
 });

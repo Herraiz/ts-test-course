@@ -117,7 +117,7 @@ describe("OtherUtils test suite", () => {
       const callExternalServiceSpy = jest
         .spyOn(
           sut as any, // now we can call private methods
-          "callExternalService"
+          "callExternalService",
         )
         .mockImplementation(() => {
           console.log("Mocked callExternalService"); // we can replace the implementation

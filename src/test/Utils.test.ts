@@ -108,7 +108,7 @@ describe("Utils test suite", () => {
       ]);
       expect(actual.characters).toContain<string>("M");
       expect(actual.characters).toEqual(
-        expect.arrayContaining(["S", "t", "r", "i", "n", "g", "M", "y", "-"])
+        expect.arrayContaining(["S", "t", "r", "i", "n", "g", "M", "y", "-"]),
       );
     });
 

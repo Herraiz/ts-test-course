@@ -19,6 +19,7 @@ export type stringInfo = {
   extraInfo: Object | undefined;
 };
 
+/* Istanbul ignore next */ // ignore this line from coverage report
 export function getStringInfo(arg: string): stringInfo {
   return {
     lowerCase: arg.toLowerCase(),

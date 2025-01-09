@@ -17,18 +17,29 @@ export class PasswordChecker {
 
     let reasons: PasswordErrors[] = [];
 
+    this.checkForLenght(password, reasons);
+
+    this.checkForUppercase(password, reasons);
+
+    this.checkForLowercase(password, reasons);
+
+    return { valid: reasons.length > 0 ? false : true, reasons };
+  }
+
+  private checkForLenght(password: string, reasons: PasswordErrors[]): void {
     if (password.length < 8) {
       reasons.push(PasswordErrors.SHORT);
     }
+  }
 
+  private checkForUppercase(password: string, reasons: PasswordErrors[]): void {
     if (password == password.toLowerCase()) {
       reasons.push(PasswordErrors.NO_UPPERCASE);
     }
-
+  }
+  private checkForLowercase(password: string, reasons: PasswordErrors[]): void {
     if (password == password.toUpperCase()) {
       reasons.push(PasswordErrors.NO_LOWERCASE);
     }
-
-    return { valid: reasons.length > 0 ? false : true, reasons };
   }
 }

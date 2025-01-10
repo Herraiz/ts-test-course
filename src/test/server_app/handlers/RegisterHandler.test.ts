@@ -5,6 +5,7 @@ import {
   HTTP_CODES,
   HTTP_METHODS,
 } from "../../../app/server_app/model/ServerModel";
+import { Account } from "../../../app/server_app/model/AuthModel";
 
 const getRequestBodyMock = jest.fn();
 
@@ -31,7 +32,7 @@ describe("RegisterHandler test suite", () => {
     registerUser: jest.fn(),
   };
 
-  const someAccount = {
+  const someAccount: Account = {
     id: "",
     userName: "someUserName",
     password: "somePassword",
@@ -41,7 +42,7 @@ describe("RegisterHandler test suite", () => {
 
   beforeAll(() => {
     sut = new RegisterHandler(
-      request as any as IncomingMessage,
+      request as IncomingMessage,
       responseMock as any as ServerResponse,
       authorizerMock as any as Authorizer
     );
@@ -55,15 +56,40 @@ describe("RegisterHandler test suite", () => {
     request.method = HTTP_METHODS.POST;
     getRequestBodyMock.mockResolvedValueOnce(someAccount);
     authorizerMock.registerUser.mockResolvedValueOnce(someId);
-
     await sut.handleRequest();
-
     expect(responseMock.statusCode).toBe(HTTP_CODES.CREATED);
     expect(responseMock.writeHead).toHaveBeenCalledWith(HTTP_CODES.CREATED, {
       "Content-Type": "application/json",
     });
-    expect(responseMock.writeHead).toHaveBeenCalledWith(
-      JSON.stringify({ userId: someId })
+    expect(responseMock.write).toHaveBeenCalledWith(
+      JSON.stringify({
+        userId: someId,
+      })
     );
+  });
+
+  test("Should write error on invalid account", async () => {
+    request.method = HTTP_METHODS.POST;
+    getRequestBodyMock.mockResolvedValueOnce({}); // invalid account
+    await sut.handleRequest();
+    expect(responseMock.statusCode).toBe(HTTP_CODES.BAD_REQUEST);
+    expect(responseMock.writeHead).toHaveBeenCalledWith(
+      HTTP_CODES.BAD_REQUEST,
+      {
+        "Content-Type": "application/json",
+      }
+    );
+    expect(responseMock.write).toHaveBeenCalledWith(
+      JSON.stringify("userName and password required")
+    );
+  });
+
+  test("Should ignore invalid method", async () => {
+    request.method = HTTP_METHODS.GET;
+    await sut.handleRequest();
+
+    expect(responseMock.writeHead).not.toHaveBeenCalled();
+    expect(responseMock.write).not.toHaveBeenCalled();
+    expect(getRequestBodyMock).not.toHaveBeenCalled();
   });
 });

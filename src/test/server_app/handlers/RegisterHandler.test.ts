@@ -40,7 +40,7 @@ describe("RegisterHandler test suite", () => {
 
   const someId = "1234";
 
-  beforeAll(() => {
+  beforeEach(() => {
     sut = new RegisterHandler(
       request as IncomingMessage,
       responseMock as any as ServerResponse,
@@ -48,7 +48,7 @@ describe("RegisterHandler test suite", () => {
     );
   });
 
-  afterAll(() => {
+  afterEach(() => {
     jest.clearAllMocks();
   });
 

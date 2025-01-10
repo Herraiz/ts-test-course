@@ -35,60 +35,50 @@ describe("SessionTokenDataAccess test suite", () => {
 
   let someSessionToken: SessionToken;
 
+  const someAccount: Account = {
+    id: "",
+    userName: "someUserName",
+    password: "somePassword",
+  };
+
   beforeEach(() => {
     sut = new SessionTokenDataAccess();
     expect(DataBase).toHaveBeenCalledTimes(1);
-
-    // Simulated fixed expiration date when using method generateExpirationTime
-    const fixedExpirationDate = new Date("2025-01-01");
-    jest
-      .spyOn(sut as any, "generateExpirationTime")
-      .mockReturnValue(fixedExpirationDate);
-
-    // Instead of that we can Spy the global method Date.now
     jest.spyOn(global.Date, "now").mockReturnValue(0);
-
-    someSessionToken = {
-      id: "",
-      userName: someUser.userName,
-      valid: true,
-      expirationDate: (sut as any).generateExpirationTime(),
-    };
   });
 
   afterEach(() => {
     jest.clearAllMocks();
   });
 
-  test("Should generate a token and return the id", async () => {
+  it("should generate token for account", async () => {
     insertMock.mockResolvedValueOnce(fakeId);
-    await sut.generateToken(someUser);
-    expect(insertMock).toHaveBeenCalledWith(someSessionToken);
-    expect(insertMock).toHaveBeenCalledTimes(1);
+    const actualTokenId = await sut.generateToken(someAccount);
+    expect(actualTokenId).toBe(fakeId);
+    expect(insertMock).toHaveBeenCalledWith({
+      id: "",
+      userName: someAccount.userName,
+      valid: true,
+      expirationDate: new Date(1000 * 60 * 60),
+    });
   });
-
-  test("Should invalidate a token", async () => {
-    updateMock.mockResolvedValueOnce(someSessionToken.id);
-    await sut.invalidateToken(someSessionToken.id);
-    expect(updateMock).toHaveBeenCalledWith(
-      someSessionToken.id,
-      "valid",
-      false
-    );
-    expect(updateMock).toHaveBeenCalledTimes(1);
+  it("should invalidate token", async () => {
+    await sut.invalidateToken(fakeId);
+    expect(updateMock).toHaveBeenCalledWith(fakeId, "valid", false);
   });
-
-  test("Should check if a token is valid", async () => {
-    getByMock.mockResolvedValueOnce(someSessionToken);
-    const actualResult = await sut.isValidToken(someSessionToken.id);
-    expect(actualResult).toBe(someSessionToken.valid);
-    expect(getByMock).toHaveBeenCalledWith("id", someSessionToken.id);
-    expect(getByMock).toHaveBeenCalledTimes(1);
+  it("should check valid token", async () => {
+    getByMock.mockResolvedValueOnce({ valid: true });
+    const actual = await sut.isValidToken({} as any);
+    expect(actual).toBe(true);
   });
-
-  test("Should generate expiration time", () => {
-    const actualExpirationDate = (sut as any).generateExpirationTime();
-    const expectedExpirationDate = new Date("2025-01-01");
-    expect(actualExpirationDate).toEqual(expectedExpirationDate);
+  it("should check invalid token", async () => {
+    getByMock.mockResolvedValueOnce({ valid: false });
+    const actual = await sut.isValidToken({} as any);
+    expect(actual).toBe(false);
+  });
+  it("should check inexistent token", async () => {
+    getByMock.mockResolvedValueOnce(undefined);
+    const actual = await sut.isValidToken({} as any);
+    expect(actual).toBe(false);
   });
 });

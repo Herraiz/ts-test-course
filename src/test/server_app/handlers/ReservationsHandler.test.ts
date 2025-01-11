@@ -387,9 +387,74 @@ describe("ReservationsHandler test suite", () => {
 
   // ************ DELETE ************
 
+  test("Should return error if delete method with no id", async () => {
+    request.headers.authorization = someId;
+    request.method = HTTP_METHODS.DELETE;
+    request.url = "/reservations/"; // no id
+    authorizerMock.validateToken.mockResolvedValueOnce(true);
+    const id = (sut as any).getIdFromUrl();
+
+    await sut.handleRequest();
+
+    expect(authorizerMock.validateToken).toHaveBeenCalledTimes(1);
+    expect(authorizerMock.validateToken).toHaveBeenCalledWith(someId);
+    expect(responseMock.statusCode).toBe(HTTP_CODES.BAD_REQUEST);
+    expect(responseMock.write).toHaveBeenCalledWith(
+      JSON.stringify("Please provide an ID!")
+    );
+  });
+  test("Should return 200 and deleted id of message if delete method with id", async () => {
+    const correctId = "5678";
+    request.headers.authorization = someId;
+    request.method = HTTP_METHODS.DELETE;
+    request.url = `/reservations/${correctId}`;
+    authorizerMock.validateToken.mockResolvedValueOnce(true);
+    const id = (sut as any).getIdFromUrl();
+
+    await sut.handleRequest();
+
+    expect(authorizerMock.validateToken).toHaveBeenCalledTimes(1);
+    expect(authorizerMock.validateToken).toHaveBeenCalledWith(someId);
+    expect(responseMock.statusCode).toBe(HTTP_CODES.OK);
+    expect(responseMock.write).toHaveBeenCalledWith(
+      JSON.stringify(`Deleted reservation with id ${id}`)
+    );
+  });
+
   // ************ FINISH DELETE TESTS ************
 
-  // Last test
+  test("Should return false if partial reservation if empty", async () => {
+    const partialReservation = {};
+    // Remove the mock to use the real implementation
+    delete (sut as any).isValidPartialReservation;
+    const actual = (sut as any).isValidPartialReservation(
+      partialReservation as Partial<Reservation>
+    );
+    expect(actual).toBe(false);
+  });
+
+  test("Should return false if has not valid keys on partial reservation", async () => {
+    const partialReservationWithInvalidKeys = {
+      invalidKey: "invalidValue",
+    };
+    delete (sut as any).isValidPartialReservation;
+    const actual = (sut as any).isValidPartialReservation(
+      partialReservationWithInvalidKeys as Partial<Reservation>
+    );
+    expect(actual).toBe(false);
+  });
+
+  test("Should return true if has right keys on partial reservation", async () => {
+    const partialReservation = {
+      endDate: "someDate",
+    };
+    delete (sut as any).isValidPartialReservation;
+    const actual = (sut as any).isValidPartialReservation(
+      partialReservation as Partial<Reservation>
+    );
+    expect(actual).toBe(true);
+  });
+
   test("Should not process request if method is not post, get, put or delete", async () => {
     request.headers.authorization = someId;
     request.method = HTTP_METHODS.OPTIONS;

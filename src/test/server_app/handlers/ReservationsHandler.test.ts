@@ -65,6 +65,8 @@ describe("ReservationsHandler test suite", () => {
       authorizerMock as any as Authorizer,
       reservationsDataAccessMock as any as ReservationsDataAccess
     );
+
+    (sut as any).isValidPartialReservation = jest.fn();
   });
   afterEach(() => {
     jest.clearAllMocks();
@@ -267,6 +269,125 @@ describe("ReservationsHandler test suite", () => {
   });
 
   // ************ FINISH GET TESTS ************
+
+  // ************ PUT ************
+
+  test("Should return error if put method with no id", async () => {
+    request.headers.authorization = someId;
+    request.method = HTTP_METHODS.PUT;
+    request.url = "/reservations/"; // no id
+    authorizerMock.validateToken.mockResolvedValueOnce(true);
+    const id = (sut as any).getIdFromUrl();
+
+    await sut.handleRequest();
+
+    expect(authorizerMock.validateToken).toHaveBeenCalledTimes(1);
+    expect(authorizerMock.validateToken).toHaveBeenCalledWith(someId);
+
+    expect(responseMock.statusCode).toBe(HTTP_CODES.BAD_REQUEST);
+    expect(responseMock.write).toHaveBeenCalledWith(
+      JSON.stringify("Please provide an ID!")
+    );
+  });
+
+  test("Should return error if put method a invalid reservation id", async () => {
+    const invalidId = "1234567";
+    request.headers.authorization = someId;
+    request.method = HTTP_METHODS.PUT;
+    request.url = `/reservations/${invalidId}`;
+    authorizerMock.validateToken.mockResolvedValueOnce(true);
+    const id = (sut as any).getIdFromUrl();
+
+    await sut.handleRequest();
+
+    expect(authorizerMock.validateToken).toHaveBeenCalledTimes(1);
+    expect(authorizerMock.validateToken).toHaveBeenCalledWith(someId);
+    expect(responseMock.statusCode).toBe(HTTP_CODES.NOT_fOUND);
+    expect(responseMock.write).toHaveBeenCalledWith(
+      JSON.stringify(`Reservation with id ${invalidId} not found`)
+    );
+  });
+
+  test("Should return error if put method with a invalid partial reservation", async () => {
+    const invalidReservation = {};
+    request.headers.authorization = someId;
+    request.method = HTTP_METHODS.PUT;
+    request.url = `/reservations/${someId}`;
+    authorizerMock.validateToken.mockResolvedValueOnce(true);
+    reservationsDataAccessMock.getReservation.mockResolvedValueOnce(
+      someReservation
+    );
+
+    getRequestBody.mockResolvedValueOnce(
+      invalidReservation as any as Reservation
+    );
+
+    await sut.handleRequest();
+
+    expect(authorizerMock.validateToken).toHaveBeenCalledTimes(1);
+    expect(authorizerMock.validateToken).toHaveBeenCalledWith(someId);
+
+    expect(responseMock.statusCode).toBe(HTTP_CODES.BAD_REQUEST);
+    expect(responseMock.write).toHaveBeenCalledWith(
+      JSON.stringify("Please provide valid fields to update!")
+    );
+  });
+
+  test("Should return 200 and updated reservation info if put method with valid partial reservation", async () => {
+    const partialReservation = {
+      room: "newRoom",
+      user: "newUser",
+    };
+    request.headers.authorization = someId;
+    request.method = HTTP_METHODS.PUT;
+    request.url = `/reservations/${someId}`;
+    authorizerMock.validateToken.mockResolvedValueOnce(true);
+    reservationsDataAccessMock.getReservation.mockResolvedValueOnce(
+      partialReservation as Partial<Reservation>
+    );
+
+    getRequestBody.mockResolvedValueOnce(partialReservation);
+
+    (sut as any).isValidPartialReservation.mockReturnValueOnce(true);
+
+    await sut.handleRequest();
+
+    expect(authorizerMock.validateToken).toHaveBeenCalledTimes(1);
+    expect(authorizerMock.validateToken).toHaveBeenCalledWith(someId);
+
+    expect(reservationsDataAccessMock.getReservation).toHaveBeenCalledTimes(1);
+    expect(reservationsDataAccessMock.getReservation).toHaveBeenCalledWith(
+      someId
+    );
+
+    expect(reservationsDataAccessMock.updateReservation).toHaveBeenCalledTimes(
+      2
+    );
+    expect(reservationsDataAccessMock.updateReservation).toHaveBeenCalledWith(
+      someId,
+      "room",
+      partialReservation.room
+    );
+    expect(reservationsDataAccessMock.updateReservation).toHaveBeenCalledWith(
+      someId,
+      "user",
+      partialReservation.user
+    );
+    expect(responseMock.writeHead).toHaveBeenCalledWith(HTTP_CODES.OK, {
+      "Content-Type": "application/json",
+    });
+    expect(responseMock.write).toHaveBeenCalledWith(
+      JSON.stringify(
+        `Updated ${Object.keys(partialReservation)} of reservation ${someId}`
+      )
+    );
+  });
+
+  // ************ FINISH PUT TESTS ************
+
+  // ************ DELETE ************
+
+  // ************ FINISH DELETE TESTS ************
 
   // Last test
   test("Should not process request if method is not post, get, put or delete", async () => {

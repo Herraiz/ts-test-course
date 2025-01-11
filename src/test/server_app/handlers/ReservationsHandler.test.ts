@@ -180,6 +180,92 @@ describe("ReservationsHandler test suite", () => {
 
   // ************ GET ************
 
+  test("Should write allReservations if get method with id all", async () => {
+    request.headers.authorization = someId;
+    request.method = HTTP_METHODS.GET;
+    request.url = "/reservations/all";
+    authorizerMock.validateToken.mockResolvedValueOnce(true);
+
+    const allReservations = [someReservation];
+    reservationsDataAccessMock.getAllReservations.mockResolvedValueOnce(
+      allReservations
+    );
+
+    await sut.handleRequest();
+
+    expect(authorizerMock.validateToken).toHaveBeenCalledTimes(1);
+    expect(authorizerMock.validateToken).toHaveBeenCalledWith(someId);
+    expect(reservationsDataAccessMock.getAllReservations).toHaveBeenCalledTimes(
+      1
+    );
+    expect(responseMock.writeHead).toHaveBeenCalledWith(HTTP_CODES.OK, {
+      "Content-Type": "application/json",
+    });
+    expect(responseMock.write).toHaveBeenCalledWith(
+      JSON.stringify(allReservations)
+    );
+  });
+
+  test("Should return error if get method without id", async () => {
+    request.headers.authorization = someId;
+    request.method = HTTP_METHODS.GET;
+    request.url = "/reservations";
+    authorizerMock.validateToken.mockResolvedValueOnce(true);
+
+    await sut.handleRequest();
+
+    expect(authorizerMock.validateToken).toHaveBeenCalledTimes(1);
+    expect(authorizerMock.validateToken).toHaveBeenCalledWith(someId);
+    expect(responseMock.statusCode).toBe(HTTP_CODES.BAD_REQUEST);
+    expect(responseMock.write).toHaveBeenCalledWith(
+      JSON.stringify("Please provide an ID!")
+    );
+  });
+
+  test("Should return error if get method with id is not a valid reservation id", async () => {
+    const invalidId = "1234567";
+    request.headers.authorization = someId;
+    request.method = HTTP_METHODS.GET;
+    request.url = `/reservations/${invalidId}`;
+    authorizerMock.validateToken.mockResolvedValueOnce(true);
+
+    await sut.handleRequest();
+
+    expect(authorizerMock.validateToken).toHaveBeenCalledTimes(1);
+    expect(authorizerMock.validateToken).toHaveBeenCalledWith(someId);
+    expect(responseMock.statusCode).toBe(HTTP_CODES.NOT_fOUND);
+    expect(responseMock.write).toHaveBeenCalledWith(
+      JSON.stringify(`Reservation with id ${invalidId} not found`)
+    );
+  });
+
+  test("Should write reservation if get method with valid reservation id", async () => {
+    request.headers.authorization = someId;
+    request.method = HTTP_METHODS.GET;
+    request.url = `/reservations/${someReservation.id}`;
+    authorizerMock.validateToken.mockResolvedValueOnce(true);
+
+    const reservation = someReservation;
+    reservationsDataAccessMock.getReservation.mockResolvedValueOnce(
+      reservation
+    );
+
+    await sut.handleRequest();
+
+    expect(authorizerMock.validateToken).toHaveBeenCalledTimes(1);
+    expect(authorizerMock.validateToken).toHaveBeenCalledWith(someId);
+    expect(reservationsDataAccessMock.getReservation).toHaveBeenCalledTimes(1);
+    expect(reservationsDataAccessMock.getReservation).toHaveBeenCalledWith(
+      someReservation.id
+    );
+    expect(responseMock.writeHead).toHaveBeenCalledWith(HTTP_CODES.OK, {
+      "Content-Type": "application/json",
+    });
+    expect(responseMock.write).toHaveBeenCalledWith(
+      JSON.stringify(reservation)
+    );
+  });
+
   // ************ FINISH GET TESTS ************
 
   // Last test

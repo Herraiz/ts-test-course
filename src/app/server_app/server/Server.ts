@@ -24,7 +24,7 @@ export class Server {
       res.end();
 
       console.log("time called res.end()");
-      console.log((res.end as any as jest.Mock).mock.calls.length);
+      // console.log((res.end as any as jest.Mock).mock.calls.length);
     });
     this.server.listen(8080);
     console.log("server started");
@@ -32,7 +32,7 @@ export class Server {
 
   private async handleRequest(
     request: IncomingMessage,
-    response: ServerResponse,
+    response: ServerResponse
   ) {
     try {
       const route = this.getRouteFromUrl(request);
@@ -41,14 +41,14 @@ export class Server {
           await new RegisterHandler(
             request,
             response,
-            this.authorizer,
+            this.authorizer
           ).handleRequest();
           break;
         case "login":
           await new LoginHandler(
             request,
             response,
-            this.authorizer,
+            this.authorizer
           ).handleRequest();
           break;
         case "reservation":
@@ -56,7 +56,7 @@ export class Server {
             request,
             response,
             this.authorizer,
-            this.reservationsDataAccess,
+            this.reservationsDataAccess
           );
           await reservation.handleRequest();
           break;
@@ -66,7 +66,7 @@ export class Server {
     } catch (error) {
       response.writeHead(
         HTTP_CODES.INTERNAL_SERVER_ERROR,
-        JSON.stringify(`Internal server error: ${error.message}`),
+        JSON.stringify(`Internal server error: ${error.message}`)
       );
       console.log(error);
     }

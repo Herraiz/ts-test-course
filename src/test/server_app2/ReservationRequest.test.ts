@@ -54,8 +54,9 @@ describe("General - Reservation requests test suite", () => {
   beforeEach(() => {
     requestWrapper.headers["user-agent"] = "jest tests";
     requestWrapper.headers["authorization"] = someToken;
-    // authenticate calles
-    getBySpy.mockResolvedValueOnce({ valid: true });
+    getBySpy.mockResolvedValueOnce({
+      valid: true,
+    });
   });
 
   afterEach(() => {
@@ -115,6 +116,8 @@ describe("General - Reservation requests test suite", () => {
       requestWrapper.body = someReservation;
       requestWrapper.url = "localhost:8080/reservation";
       requestWrapper.headers["authorization"] = undefined;
+      getBySpy.mockReset();
+      getBySpy.mockResolvedValue(undefined); // instead of mockResolvedValueOnce, because it is called twice
 
       insertSpy.mockResolvedValueOnce(undefined);
 
@@ -124,68 +127,36 @@ describe("General - Reservation requests test suite", () => {
 
       expect(responseWrapper.statusCode).toBe(HTTP_CODES.UNAUTHORIZED);
       expect(responseWrapper.body).toEqual("Unauthorized operation!");
-      expect(getBySpy).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("GET requests", () => {
+    test("should return all reservations if authorized - GET", async () => {
+      requestWrapper.method = HTTP_METHODS.GET;
+      requestWrapper.url = "localhost:8080/reservation/all";
+      getAllElementsSpy.mockResolvedValueOnce([someReservation]);
+
+      await new Server().startServer();
+
+      await new Promise(process.nextTick); // solve timing issues
+
+      expect(responseWrapper.statusCode).toBe(HTTP_CODES.OK);
+      expect(responseWrapper.headers).toContainEqual(jsonHeader);
+      expect(responseWrapper.body).toEqual([someReservation]);
     });
 
-    describe("GET requests", () => {
-      test("should return all reservations if authorized - GET", async () => {
-        requestWrapper.method = HTTP_METHODS.GET;
-        requestWrapper.url = "localhost:8080/reservation/all";
-        getAllElementsSpy.mockResolvedValueOnce([someReservation]);
+    test("should return specific reservations", async () => {
+      requestWrapper.method = HTTP_METHODS.GET;
+      requestWrapper.url = `localhost:8080/reservation/${someId}`;
+      getBySpy.mockResolvedValueOnce(someReservation);
 
-        await new Server().startServer();
+      await new Server().startServer();
 
-        await new Promise(process.nextTick); // solve timing issues
+      await new Promise(process.nextTick); // this solves timing issues,
 
-        expect(responseWrapper.statusCode).toBe(HTTP_CODES.OK);
-        expect(responseWrapper.headers).toContainEqual(jsonHeader);
-        expect(responseWrapper.body).toEqual([someReservation]);
-      });
-
-      it("should return specific reservations", async () => {
-        requestWrapper.method = HTTP_METHODS.GET;
-        requestWrapper.url = `localhost:8080/reservation/${someId}`;
-        getBySpy.mockImplementation((table: string, id: string) => {
-          if (table === "tokens") {
-            return Promise.resolve({ valid: true });
-          }
-          if (table === "reservations") {
-            return Promise.resolve(someReservation);
-          }
-          return Promise.resolve(undefined);
-        });
-
-        await new Server().startServer();
-
-        await new Promise(process.nextTick); // this solves timing issues,
-
-        expect(responseWrapper.statusCode).toBe(HTTP_CODES.OK);
-        expect(responseWrapper.body).toEqual(someReservation);
-        expect(responseWrapper.headers).toContainEqual(jsonHeader);
-      });
-
-      //   describe("POST requests", () => {});
-      //   describe("POST requests", () => {});
-      //   describe("POST requests", () => {});
-
-      //   test("should return all reservations if authorized - GET", async () => {
-      //     requestWrapper.method = HTTP_METHODS.POST;
-      //     requestWrapper.body = {
-      //       userName: "someUserName",
-      //       password: "somePassword",
-      //     };
-      //     requestWrapper.url = "localhost:8080/reservations/all";
-      //     insertSpy.mockResolvedValueOnce(someToken);
-      //     getBySpy.mockResolvedValueOnce(someAccount);
-
-      //     await new Server().startServer();
-
-      //     await new Promise(process.nextTick); // solve timing issues
-
-      //     expect(responseWrapper.statusCode).toBe(HTTP_CODES.CREATED);
-      //     expect(responseWrapper.headers).toContainEqual(jsonHeader);
-      //     expect(responseWrapper.body).toEqual({ token: someToken });
-      //   });
+      expect(responseWrapper.statusCode).toBe(HTTP_CODES.OK);
+      expect(responseWrapper.body).toEqual(someReservation);
+      expect(responseWrapper.headers).toContainEqual(jsonHeader);
     });
   });
 });

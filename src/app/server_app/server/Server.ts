@@ -22,6 +22,9 @@ export class Server {
       console.log(`Got request for ${req.url}`);
       await this.handleRequest(req, res);
       res.end();
+
+      console.log("time called res.end()");
+      console.log((res.end as any as jest.Mock).mock.calls.length);
     });
     this.server.listen(8080);
     console.log("server started");

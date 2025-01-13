@@ -45,4 +45,30 @@ describe("Register requests test suite", () => {
       expect.objectContaining({ userId: expect.any(String) })
     );
   });
+
+  test("should reject request with no userName and password", async () => {
+    requestWrapper.method = HTTP_METHODS.POST;
+    requestWrapper.body = {};
+    requestWrapper.url = "localhost:8080/register";
+
+    await new Server().startServer();
+
+    await new Promise(process.nextTick); // solve timing issues
+
+    expect(responseWrapper.statusCode).toBe(HTTP_CODES.BAD_REQUEST);
+    expect(responseWrapper.body).toBe("userName and password required");
+  });
+
+  test("should do nothing for unsupported methods", async () => {
+    requestWrapper.method = HTTP_METHODS.OPTIONS;
+    requestWrapper.body = {};
+    requestWrapper.url = "localhost:8080/register";
+
+    await new Server().startServer();
+
+    await new Promise(process.nextTick); // solve timing issues
+
+    expect(responseWrapper.statusCode).toBe(undefined);
+    expect(responseWrapper.body).toBe(undefined);
+  });
 });

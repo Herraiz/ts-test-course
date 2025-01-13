@@ -151,4 +151,16 @@ describe("Server test suite", () => {
     await sut.stopServer();
     expect(serverMock.close).toHaveBeenCalledTimes(1);
   });
+
+  it("should reject closing server if error", async () => {
+    const mockError = new Error("error closing server");
+    serverMock.close.mockImplementationOnce((cb: Function) => {
+      cb(mockError);
+    });
+
+    await sut.startServer();
+    await expect(sut.stopServer()).rejects.toThrow("error closing server");
+
+    expect(serverMock.close).toHaveBeenCalledTimes(1);
+  });
 });

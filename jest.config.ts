@@ -15,6 +15,9 @@ const config: Config.InitialOptions = {
   forceCoverageMatch: [`${baseDir}/**/*.ts`],
   // testMatch: [`${baseTestDir}/**/*.ts`],
   testMatch: [`${baseTestDir}/**/*test.ts`],
+
+  // We can use this to inject environment variables
+  setupFiles: ["<rootDir>/src/test/server_app_integration/utils/config.ts"],
 };
 
 export default config;

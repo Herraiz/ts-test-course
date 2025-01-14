@@ -53,6 +53,7 @@ describe("Server app integration tests", () => {
 
     expect(result.status).toBe(HTTP_CODES.CREATED);
     expect(resultBody).toBeDefined();
+    console.log("environment testing:", process.env.HOST, process.env.PORT);
   });
 
   test("Should register new user with awesomeResult", async () => {

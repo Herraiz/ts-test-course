@@ -12,6 +12,7 @@ const config: Config.InitialOptions = {
 
   collectCoverage: true,
   collectCoverageFrom: [`${baseDir}/**/*.ts`],
+  forceCoverageMatch: [`${baseDir}/**/*.ts`],
   // testMatch: [`${baseTestDir}/**/*.ts`],
   testMatch: [`${baseTestDir}/**/*test.ts`],
 };

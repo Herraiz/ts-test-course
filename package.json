@@ -5,6 +5,7 @@
   "scripts": {
     "test": "jest",
     "test:watch": "jest --watch",
+    "test:watchAll": "jest --watchAll",
     "start": "ts-node src/app/server_app/Launcher.ts"
   },
   "repository": {

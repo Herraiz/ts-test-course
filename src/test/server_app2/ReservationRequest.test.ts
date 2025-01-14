@@ -158,5 +158,65 @@ describe("General - Reservation requests test suite", () => {
       expect(responseWrapper.body).toEqual(someReservation);
       expect(responseWrapper.headers).toContainEqual(jsonHeader);
     });
+
+    test("should return error if no reservation with that id", async () => {
+      requestWrapper.method = HTTP_METHODS.GET;
+      requestWrapper.url = `localhost:8080/reservation/${someId}`;
+      getBySpy.mockResolvedValueOnce(undefined);
+
+      await new Server().startServer();
+
+      await new Promise(process.nextTick); // this solves timing issues,
+
+      expect(responseWrapper.statusCode).toBe(HTTP_CODES.NOT_fOUND);
+      expect(responseWrapper.body).toEqual(
+        `Reservation with id ${someId} not found`
+      );
+    });
+
+    test("should return error if id in reservation", async () => {
+      requestWrapper.method = HTTP_METHODS.GET;
+      requestWrapper.url = `localhost:8080/reservation/`;
+      getBySpy.mockResolvedValueOnce(undefined);
+
+      await new Server().startServer();
+
+      await new Promise(process.nextTick); // this solves timing issues,
+
+      expect(responseWrapper.statusCode).toBe(HTTP_CODES.BAD_REQUEST);
+      expect(responseWrapper.body).toEqual("Please provide an ID!");
+    });
   });
+
+  //   describe("PUT requests", () => {
+  //     test("should update reservation if found and valid request", async () => {
+  //     requestWrapper.method = HTTP_METHODS.PUT;
+  //     requestWrapper.url = `localhost:8080/reservation/${someId}`;
+  //     getBySpy.mockImplementation(async (key: string, value: string) => {
+  //         console.log('getBySpy called with:', key, value);
+  //         if (key === 'id' && value === someToken) {
+  //             return { valid: true };
+  //         }
+  //         if (key === 'id' && value === someId) {
+  //             return someReservation;
+  //         }
+  //         return undefined;
+  //     });
+  //     updateSpy.mockResolvedValue(undefined);
+  //     requestWrapper.body = {
+  //         user: "someOtherUser",
+  //         startDate: "someOtherStartDate",
+  //     };
+
+  //     await new Server().startServer();
+
+  //     await new Promise(process.nextTick); // this solves timing issues,
+
+  //       expect(responseWrapper.statusCode).toBe(HTTP_CODES.OK);
+  //       expect(responseWrapper.body).toEqual(
+  //         `Updated user,startDate of reservation ${someId}`
+  //       );
+  //       expect(responseWrapper.headers).toContainEqual(jsonHeader);
+  //     });
+  //   });
 });

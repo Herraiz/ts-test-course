@@ -1,3 +1,4 @@
+import * as generated from "../../app/server_app/data/IdGenerator";
 import { Account } from "../../app/server_app/model/AuthModel";
 import { Reservation } from "../../app/server_app/model/ReservationModel";
 import {
@@ -217,5 +218,32 @@ describe("Server app integration tests", () => {
     );
 
     expect(deletedReservation.status).toBe(HTTP_CODES.NOT_fOUND);
+  });
+
+  test("Snapshot demo", async () => {
+    jest.spyOn(generated, "generateRandomId").mockReturnValueOnce("1234");
+
+    await fetch("http://localhost:8080/reservation", {
+      method: HTTP_METHODS.POST,
+      headers: {
+        "user-agent": "jest tests",
+        authorization: token,
+      },
+      body: JSON.stringify(someReservation),
+    });
+
+    const getResult = await fetch(`http://localhost:8080/reservation/1234`, {
+      method: HTTP_METHODS.GET,
+      headers: {
+        "user-agent": "jest tests",
+        authorization: token,
+      },
+    });
+
+    const getRequestBody: Reservation = await getResult.json();
+
+    expect(getRequestBody).toMatchSnapshot();
+    expect(getRequestBody).toMatchSnapshot();
+    // npm test -- -u to update snapshots
   });
 });

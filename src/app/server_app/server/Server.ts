@@ -87,7 +87,7 @@ export class Server {
           if (err) {
             reject(err);
           } else {
-            console.log("server closed");
+            // console.log("server closed");
             resolve();
           }
         });

@@ -4,6 +4,7 @@ import {
   HTTP_METHODS,
 } from "../../app/server_app/model/ServerModel";
 import { Server } from "../../app/server_app/server/Server";
+import { makeAwesomeRequest } from "./utils/http-client";
 
 // No mocks, we're just testing things how they are
 
@@ -34,5 +35,20 @@ describe("Server app integration tests", () => {
 
     expect(result.status).toBe(HTTP_CODES.CREATED);
     expect(resultBody).toBeDefined();
+  });
+
+  test("Should register new user with awesomeResult", async () => {
+    const result = await makeAwesomeRequest(
+      {
+        host: "localhost",
+        port: 8080,
+        method: HTTP_METHODS.POST,
+        path: "/register",
+      },
+      someUser
+    );
+
+    expect(result.statusCode).toBe(HTTP_CODES.CREATED);
+    expect(result.body).toBeDefined();
   });
 });

@@ -7,6 +7,7 @@
     "test:watch": "jest --watch",
     "test:watchAll": "jest --watchAll",
     "itest": "jest --config itests.jest.config.ts",
+    "test:node": "node --test --require ts-node/register src/utils.test.ts",
     "start": "ts-node src/app/server_app/Launcher.ts"
   },
   "repository": {

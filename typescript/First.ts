@@ -1,6 +1,6 @@
 interface Person {
   firstName: string;
-  lasName: string;
+  lastName: string;
   job?: job;
   isVisitor?: boolean;
 }
@@ -11,24 +11,44 @@ function generateEmail(input: Person, force?: boolean): string | undefined {
   if (input.isVisitor && !force) {
     return undefined;
   } else {
-    return `${input.firstName.toLowerCase()}.${input.lasName.toLowerCase()}.${input.job.toLowerCase()}@email.com`;
+    return `${input.firstName.toLowerCase()}.${input.lastName.toLowerCase()}@email.com`;
   }
 }
 
 const person: Person = {
   firstName: "John",
-  lasName: "Doe",
+  lastName: "Doe",
 };
 
-console.log(
-  generateEmail(
-    {
-      firstName: "John",
-      lasName: "Doe",
-      // job: "Ewqdqdqwd",
-      job: "Engineer",
-      isVisitor: true,
-    },
-    true
-  )
-);
+// console.log(
+//   generateEmail(
+//     {
+//       firstName: "John",
+//       lastName: "Doe",
+//       // job: "Ewqdqdqwd",
+//       job: "Engineer",
+//       isVisitor: true,
+//     },
+//     true
+//   )
+// );
+
+// Type guards
+
+function isPerson(potentialPerson: any): boolean {
+  if ("firstName" in potentialPerson && "lastName" in potentialPerson) {
+    return true;
+  } else {
+    return false;
+  }
+}
+
+function printEmailIfPerson(potentialPerson: any): void {
+  if (isPerson(potentialPerson)) {
+    console.log(generateEmail(potentialPerson));
+  } else {
+    console.log("Not a person");
+  }
+}
+
+printEmailIfPerson(person);

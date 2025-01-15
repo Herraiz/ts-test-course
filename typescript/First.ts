@@ -1,9 +1,25 @@
-var a: string = "!";
-var b: number = 5;
-var c: boolean = false;
+interface Person {
+  firstName: string;
+  lasName: string;
+  job?: job;
+}
 
-var someArray: string[] = ["Hello", "World"];
-someArray.push(a);
-someArray.push(b as any); // very bad practice
+type job = "Engineer" | "Programmer";
 
-console.log(someArray);
+function generateEmail(input: Person) {
+  return `${input.firstName.toLowerCase()}.${input.lasName.toLowerCase()}.+ ${input.job.toLowerCase()}@email.com`;
+}
+
+const person: Person = {
+  firstName: "John",
+  lasName: "Doe",
+};
+
+console.log(
+  generateEmail({
+    firstName: "John",
+    lasName: "Doe",
+    // job: "Ewqdqdqwd",
+    job: "Engineer",
+  })
+);

@@ -1,0 +1,7 @@
+{
+  "liveServer.settings.root": "/ts-frontend",
+  "liveServer.settings.file": "index.html",
+  "liveServer.settings.CustomBrowser": "chrome",
+  "liveServer.settings.wait": 100,
+  "liveServer.settings.ignoreFiles": [".vscode/**", "**/*.scss", "**/*.sass"]
+}

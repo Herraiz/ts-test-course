@@ -10,15 +10,20 @@ class Server implements IServer {
   public port: number;
   public address: string;
   public comp1 = new someComponent();
+  public date: string = "";
 
   constructor(port: number, address: string) {
     this.port = port;
     this.address = address;
+    this.date = "";
   }
 
   async startServer() {
     const data = await this.getData();
     console.log(`Server started at ${this.address}:${this.port}`);
+    return function () {
+      // this.date = 5;
+    };
   }
 
   stopServer(): void {}

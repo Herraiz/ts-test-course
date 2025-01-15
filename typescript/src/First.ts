@@ -15,6 +15,12 @@ function generateEmail(input: Person, force?: boolean): string | undefined {
   }
 }
 
+const abc: string | undefined = generateEmail({} as any);
+
+function toUpperCase(arg: string) {}
+
+toUpperCase(abc!); // stric null check, we are sure that abc is not null
+
 const person: Person = {
   firstName: "John",
   lastName: "Doe",

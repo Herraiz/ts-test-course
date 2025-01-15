@@ -52,3 +52,7 @@ function printEmailIfPerson(potentialPerson: any): void {
 }
 
 printEmailIfPerson(person);
+
+async function someAsycn() {
+  return "async";
+}

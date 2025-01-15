@@ -1,6 +1,25 @@
-import { Comp1 as someComponent } from "@components/Comp1";
-// import { Comp1 as SomeComponent } from "./data/components/Comp1";
+// import { Comp1 as someComponent } from "@components/Comp1";
+import { Comp1 as someComponent } from "./data/components/Comp1";
 // import * as Comp from "./data/components/Comp1";
+
+function logInvocation(
+  target: Object,
+  propertyKey: string,
+  descriptor: PropertyDescriptor
+) {
+  const className = target.constructor.name; // which class called the method
+  let originalMethod = descriptor.value;
+  descriptor.value = async function (...args: any[]) {
+    console.log(
+      `${className}#${propertyKey} called with ${JSON.stringify(args)}`
+    );
+    const result = await originalMethod.apply(this, args);
+    console.log(
+      `${className}#${propertyKey} returned ${JSON.stringify(result)}`
+    );
+  };
+}
+
 export interface IServer {
   startServer(): void;
   stopServer(): void;
@@ -19,7 +38,7 @@ class Server implements IServer {
   }
 
   async startServer() {
-    const data = await this.getData();
+    const data = await this.getData(123);
     console.log(`Server started at ${this.address}:${this.port}`);
     return function () {
       // this.date = 5;
@@ -29,8 +48,9 @@ class Server implements IServer {
   stopServer(): void {}
 
   // Promises, need await to use them and transform functions to async if they use it
-  async getData(): Promise<string> {
-    return "{}";
+  @logInvocation
+  async getData(id: number): Promise<string> {
+    return "some special data";
   }
 }
 

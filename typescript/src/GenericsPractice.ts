@@ -13,13 +13,11 @@ interface NewPerson<T> {
 
 const john: NewPerson<string> = {
   special: "Engineer",
-  name: "John",
+  name: "john",
   age: 25,
 };
 
 class Observable<T extends NewPerson<string>> {
-  constructor(public value: T) {}
-
   subscribe(arg: T): void {
     console.log(`Subscribed to ${arg.name}`);
   }

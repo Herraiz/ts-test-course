@@ -12,11 +12,17 @@ class Server implements IServer {
     this.address = address;
   }
 
-  startServer() {
+  async startServer() {
+    const data = await this.getData();
     console.log(`Server started at ${this.address}:${this.port}`);
   }
 
   stopServer(): void {}
+
+  // Promises, need await to use them and transform functions to async if they use it
+  async getData(): Promise<string> {
+    return "{}";
+  }
 }
 
 const someServer: IServer = new Server(3000, "localhost");
